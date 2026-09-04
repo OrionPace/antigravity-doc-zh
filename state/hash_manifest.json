@@ -1,0 +1,218 @@
+{
+  "/docs/cli/overview": {
+    "sha256": "0adb8b398de1956276dee092816693d1a87a1e111ad113bb28ec3f7a0447533d",
+    "url": "https://antigravity.google/docs/cli/overview.md",
+    "updated_at": "2026-09-04T06:39:42Z",
+    "dest_file": "docs/cli/00-overview.md"
+  },
+  "/docs/cli/getting-started": {
+    "sha256": "0a50703a4072eed384f221d6b9db04c6d8a75dadbe8582786ca1db1344ce7707",
+    "url": "https://antigravity.google/docs/cli/getting-started.md",
+    "updated_at": "2026-09-04T06:39:43Z",
+    "dest_file": "docs/cli/01-getting-started.md"
+  },
+  "/docs/cli/install": {
+    "sha256": "142a90080062ab361b05923efe93f3c1c641c0356bdcb775e8f70e5b9585a2e5",
+    "url": "https://antigravity.google/docs/cli/install.md",
+    "updated_at": "2026-09-04T06:39:43Z",
+    "dest_file": "docs/cli/02-installation-auth.md"
+  },
+  "/docs/cli/tutorial": {
+    "sha256": "32d1ed0ad0a8b9cc70b6f9c1692d6e6f6f1fee53118c214a8f75a0b12cccb86d",
+    "url": "https://antigravity.google/docs/cli/tutorial.md",
+    "updated_at": "2026-09-04T06:39:43Z",
+    "dest_file": "docs/cli/03-tutorial.md"
+  },
+  "/docs/cli/using": {
+    "sha256": "22f3e610efe681dcd250865ec0f6fe41ed58f504a449b6b7c4b0e081948d40f1",
+    "url": "https://antigravity.google/docs/cli/using.md",
+    "updated_at": "2026-09-04T06:39:44Z",
+    "dest_file": "docs/cli/04-using-agy-cli.md"
+  },
+  "/docs/cli/features": {
+    "sha256": "23b43b5929740e0ac66668daa89ae89934e765c11b7728752724a1c6c622d8cd",
+    "url": "https://antigravity.google/docs/cli/features.md",
+    "updated_at": "2026-09-04T06:39:44Z",
+    "dest_file": "docs/cli/05-features.md"
+  },
+  "/docs/cli/gcli-migration": {
+    "sha256": "7f319ed82130e071d352816335af16ee1f4f5b989545ee11e6e93d58215f0407",
+    "url": "https://antigravity.google/docs/cli/gcli-migration.md",
+    "updated_at": "2026-09-04T06:39:44Z",
+    "dest_file": "docs/cli/06-migration.md"
+  },
+  "/docs/cli/prompting": {
+    "sha256": "27d6ffd922ca1fd83c71e52c4765f4ca82fc9a365564f3348660b97fa40502a2",
+    "url": "https://antigravity.google/docs/cli/prompting.md",
+    "updated_at": "2026-09-04T06:39:45Z",
+    "dest_file": "docs/cli/07-prompting-interaction.md"
+  },
+  "/docs/cli/artifacts": {
+    "sha256": "66be855ad9f4f6ad0199ff2ce3897f84c7a4bff7d2217311daca5d3edca40ea6",
+    "url": "https://antigravity.google/docs/cli/artifacts.md",
+    "updated_at": "2026-09-04T06:39:45Z",
+    "dest_file": "docs/cli/08-reviewing-artifacts.md"
+  },
+  "/docs/cli/conversations": {
+    "sha256": "ac9e55a4b979880b520431f8936393c44c3df89122688bcec839f8e00bdb3dcc",
+    "url": "https://antigravity.google/docs/cli/conversations.md",
+    "updated_at": "2026-09-04T06:39:45Z",
+    "dest_file": "docs/cli/09-managing-conversations.md"
+  },
+  "/docs/cli/modes": {
+    "sha256": "05c1c662d04a683bbf778cc48ab6e383c1b67177ad43f0fdd8c37a557e31e5bf",
+    "url": "https://antigravity.google/docs/cli/modes.md",
+    "updated_at": "2026-09-04T06:39:46Z",
+    "dest_file": "docs/cli/10-choose-an-execution-mode.md"
+  },
+  "/docs/cli/headless": {
+    "sha256": "822f81257dbcafd3c6a4de3660158f1d9f3509063956a99effd373b5ae06d50d",
+    "url": "https://antigravity.google/docs/cli/headless.md",
+    "updated_at": "2026-09-04T06:39:46Z",
+    "dest_file": "docs/cli/11-headless-mode.md"
+  },
+  "/docs/cli/subagents": {
+    "sha256": "47338aa85fa051e5f926692792a0a4cd045b0867e59c792ccbaf84d6b3fce94c",
+    "url": "https://antigravity.google/docs/cli/subagents.md",
+    "updated_at": "2026-09-04T06:39:46Z",
+    "dest_file": "docs/cli/12-background-tasks-subagents.md"
+  },
+  "/docs/cli/sandbox": {
+    "sha256": "02a045fb779df0561760b5ca279f539da8eacaf5624dd75f1b6319aa4cb4e6c1",
+    "url": "https://antigravity.google/docs/cli/sandbox.md",
+    "updated_at": "2026-09-04T06:39:47Z",
+    "dest_file": "docs/cli/13-sandbox.md"
+  },
+  "/docs/cli/permissions": {
+    "sha256": "3bb2557f2f7fb9cad044cead2ed6526d7c81a54be324a8e26b5bbe47c1c2ea4d",
+    "url": "https://antigravity.google/docs/cli/permissions.md",
+    "updated_at": "2026-09-04T06:39:47Z",
+    "dest_file": "docs/cli/14-permissions.md"
+  },
+  "/docs/cli/projects": {
+    "sha256": "94723a55d8419af1381a637102ba1198b0e3aba64e7f30e930cf537b702b8b41",
+    "url": "https://antigravity.google/docs/cli/projects.md",
+    "updated_at": "2026-09-04T06:39:48Z",
+    "dest_file": "docs/cli/15-projects.md"
+  },
+  "/docs/cli/settings": {
+    "sha256": "3cb1a9e895fdd0db9d7b4fc3544b1a2ef8668f3cdf3d6ba2bdc91d263cc99e57",
+    "url": "https://antigravity.google/docs/cli/settings.md",
+    "updated_at": "2026-09-04T06:39:48Z",
+    "dest_file": "docs/cli/16-settings-rendering-keybindings.md"
+  },
+  "/docs/cli/vim-editor-mode": {
+    "sha256": "9dc11b0bd4ee9242f84820aa8a3f18cbb6f78dfeaa12e07a33afaebd65622f55",
+    "url": "https://antigravity.google/docs/cli/vim-editor-mode.md",
+    "updated_at": "2026-09-04T06:39:48Z",
+    "dest_file": "docs/cli/17-vim-editor-mode.md"
+  },
+  "/docs/cli/credits": {
+    "sha256": "1b036aa9f9a09cd42bd703ffecab6efd57ff03f6ef65102db8009f65e9699977",
+    "url": "https://antigravity.google/docs/cli/credits.md",
+    "updated_at": "2026-09-04T06:39:49Z",
+    "dest_file": "docs/cli/18-ai-credits.md"
+  },
+  "/docs/cli/mcp": {
+    "sha256": "8990f848321627ef78f85720224b848b255880909e00ba1fa9f8a0c3fe507958",
+    "url": "https://antigravity.google/docs/cli/mcp.md",
+    "updated_at": "2026-09-04T06:39:49Z",
+    "dest_file": "docs/cli/19-mcp.md"
+  },
+  "/docs/cli/plugins": {
+    "sha256": "74a4ece3da7f4dc6f79f1f6ef0da297ed69d45f9fc3a8136929474a8bacd1b3a",
+    "url": "https://antigravity.google/docs/cli/plugins.md",
+    "updated_at": "2026-09-04T06:39:49Z",
+    "dest_file": "docs/cli/20-plugins-skills.md"
+  },
+  "/docs/cli/statusline": {
+    "sha256": "d715102fc734b7c67ef858f046851efcf4574e1908f339ab5d61b181b0f406be",
+    "url": "https://antigravity.google/docs/cli/statusline.md",
+    "updated_at": "2026-09-04T06:39:50Z",
+    "dest_file": "docs/cli/21-status-line-customization.md"
+  },
+  "/docs/cli/title": {
+    "sha256": "7ca631ae5a9b76697d4d04e1471afb56d0f6d8442ebd1bfe72eceb856f58fdf0",
+    "url": "https://antigravity.google/docs/cli/title.md",
+    "updated_at": "2026-09-04T06:39:50Z",
+    "dest_file": "docs/cli/22-terminal-title-customization.md"
+  },
+  "/docs/cli/commands/agents": {
+    "sha256": "cf053cd576088b05f9081fbd65c5815fdd7b77877634525de965e2622dda6092",
+    "url": "https://antigravity.google/docs/cli/commands/agents.md",
+    "updated_at": "2026-09-04T06:39:51Z",
+    "dest_file": "docs/cli/23-agents-command-agents.md"
+  },
+  "/docs/cli/commands/codesearch": {
+    "sha256": "42cb7a3b045250d270c17b4502cf10737d50c22ca92c3802525b27ae94cd9c7e",
+    "url": "https://antigravity.google/docs/cli/commands/codesearch.md",
+    "updated_at": "2026-09-04T06:39:51Z",
+    "dest_file": "docs/cli/24-code-search-command-codesearch.md"
+  },
+  "/docs/cli/commands/credits": {
+    "sha256": "1c6122b249616f09f3df984a446ef29d34281cceda3521274bd3b9ecfe395614",
+    "url": "https://antigravity.google/docs/cli/commands/credits.md",
+    "updated_at": "2026-09-04T06:39:51Z",
+    "dest_file": "docs/cli/25-ai-credits-command-credits.md"
+  },
+  "/docs/cli/commands/diff": {
+    "sha256": "9fa391674c502b56c06b5ac30f6f6762ea85ebca397553e2e2cf7974c7333e98",
+    "url": "https://antigravity.google/docs/cli/commands/diff.md",
+    "updated_at": "2026-09-04T06:39:52Z",
+    "dest_file": "docs/cli/26-diff-command-diff.md"
+  },
+  "/docs/cli/commands/permissions": {
+    "sha256": "57677c134af7e6db2cd89390f787f919f059eba2eaccfdbfa3bc0d26893f7c9b",
+    "url": "https://antigravity.google/docs/cli/commands/permissions.md",
+    "updated_at": "2026-09-04T06:39:52Z",
+    "dest_file": "docs/cli/27-permissions-command-permissions.md"
+  },
+  "/docs/cli/commands/resume": {
+    "sha256": "e5adc3361bb30c564d41e292cb5005751ef6f449841deeb425abdc07888bf487",
+    "url": "https://antigravity.google/docs/cli/commands/resume.md",
+    "updated_at": "2026-09-04T06:39:52Z",
+    "dest_file": "docs/cli/28-resume-command-resume.md"
+  },
+  "/docs/cli/commands/statusline": {
+    "sha256": "17d0df548b97feb806408845612f2830d8870adc7d39f74e14e5314948d814a2",
+    "url": "https://antigravity.google/docs/cli/commands/statusline.md",
+    "updated_at": "2026-09-04T06:39:53Z",
+    "dest_file": "docs/cli/29-status-line-command-statusline.md"
+  },
+  "/docs/cli/commands/title": {
+    "sha256": "2751e7bdd6b24dae808ad2d7407aad9129491e9d0286bcd34866c86759c80379",
+    "url": "https://antigravity.google/docs/cli/commands/title.md",
+    "updated_at": "2026-09-04T06:39:53Z",
+    "dest_file": "docs/cli/30-window-title-command-title.md"
+  },
+  "/docs/cli/commands/usage": {
+    "sha256": "53ed1f40574edcf6f6e5282e08ab66ce2dc3ab6eefb7fdbe9bc206930c945785",
+    "url": "https://antigravity.google/docs/cli/commands/usage.md",
+    "updated_at": "2026-09-04T06:39:53Z",
+    "dest_file": "docs/cli/31-model-quotas-usage.md"
+  },
+  "/docs/cli/commands/voice": {
+    "sha256": "c24a194973ada6aa68ace6b53af7fe9b6d6939d908e9f60784d55fff5cac0502",
+    "url": "https://antigravity.google/docs/cli/commands/voice.md",
+    "updated_at": "2026-09-04T06:39:54Z",
+    "dest_file": "docs/cli/32-voice-dictation-voice.md"
+  },
+  "/docs/cli/best-practices": {
+    "sha256": "3557939e0336c4cd61e884aff8e74ec2a2ae6bd9a24b8e16b3491052f0334bef",
+    "url": "https://antigravity.google/docs/cli/best-practices.md",
+    "updated_at": "2026-09-04T06:39:54Z",
+    "dest_file": "docs/cli/33-best-practices.md"
+  },
+  "/docs/cli/troubleshooting": {
+    "sha256": "02138bdcb291ad03ffcf201ea1b5719075b55c236bb6dcf5d02c3e88c4f1e678",
+    "url": "https://antigravity.google/docs/cli/troubleshooting.md",
+    "updated_at": "2026-09-04T06:39:54Z",
+    "dest_file": "docs/cli/34-troubleshooting.md"
+  },
+  "/docs/cli/reference": {
+    "sha256": "01f560c0597c4f71a8dce6a49c3da54be15f42f802af0bd3bc5e262569aa7d1f",
+    "url": "https://antigravity.google/docs/cli/reference.md",
+    "updated_at": "2026-09-04T06:39:55Z",
+    "dest_file": "docs/cli/35-cli-reference.md"
+  }
+}

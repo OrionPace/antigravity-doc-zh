@@ -8,8 +8,6 @@ docs/.vitepress/dist/
 docs/.vitepress/cache/
 
 # Generated translated docs (produced by `pnpm sync`)
-docs/gemini-cli/
-docs/codex/
 
 # Environment & secrets (NEVER commit API keys)
 .env

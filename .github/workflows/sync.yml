@@ -3,18 +3,13 @@ name: Sync upstream and deploy
 on:
   workflow_dispatch:
     inputs:
-      project:
-        description: 'Limit sync to one project id (leave empty for all)'
-        required: false
-        default: ''
-      full:
-        description: 'Force full re-translation (ignore cache)'
+      force:
+        description: 'Force full re-translation (ignore hash manifest)'
         required: false
         default: 'false'
   schedule:
-    # Daily at 17:00 UTC = 01:00 Beijing time (next day). Avoid the on-the-hour
-    # GitHub Actions queue spike.
-    - cron: '0 17 * * *'
+    # Daily at 20:00 UTC = 04:00 Beijing time
+    - cron: '0 20 * * *'
 
 permissions:
   contents: write
@@ -28,14 +23,33 @@ concurrency:
 jobs:
   sync-and-build:
     runs-on: ubuntu-latest
-    timeout-minutes: 360
+    timeout-minutes: 60
     steps:
       - uses: actions/checkout@v4
         with:
-          # Need translation memory + state files committed back, so use a
-          # token that can push.
           token: ${{ secrets.GITHUB_TOKEN }}
           fetch-depth: 0
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install Python requests
+        run: pip install requests
+
+      - name: Sync upstream Antigravity docs (0-Token Hash Guard)
+        env:
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          DEEPSEEK_API_KEY: ${{ secrets.DEEPSEEK_API_KEY }}
+          OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+        run: |
+          ARGS=""
+          if [ "${{ inputs.force }}" = "true" ]; then
+            ARGS="--force"
+          fi
+          python scripts/sync.py $ARGS
 
       - name: Setup pnpm
         uses: pnpm/action-setup@v4
@@ -46,51 +60,21 @@ jobs:
           node-version-file: .nvmrc
           cache: pnpm
 
-      - name: Install
+      - name: Install Node dependencies
         run: pnpm install --frozen-lockfile
 
-      - name: Sync and translate
-        env:
-          NVIDIA_API_KEY: ${{ secrets.NVIDIA_API_KEY }}
-          DEEPSEEK_API_KEY: ${{ secrets.DEEPSEEK_API_KEY }}
-          OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
-          OPENROUTER_MODEL: ${{ vars.OPENROUTER_MODEL }}
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          ARGS=""
-          if [ -n "${{ inputs.project }}" ]; then
-            ARGS="$ARGS --project ${{ inputs.project }}"
-          fi
-          if [ "${{ inputs.full }}" = "true" ]; then
-            ARGS="$ARGS --full"
-          fi
-          pnpm sync $ARGS || SYNC_EXIT=$?
-          # exit 2 = block-level failures (English placeholders) — acceptable, continue to build
-          if [ "${SYNC_EXIT:-0}" -ne 0 ] && [ "${SYNC_EXIT:-0}" -ne 2 ]; then
-            exit $SYNC_EXIT
-          fi
-
-      - name: Fetch upstream LICENSE/NOTICE
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: pnpm fetch-licenses
-
-      - name: Predeploy compliance check
-        run: pnpm predeploy:check
-
-      - name: Build site
+      - name: Build VitePress site
         run: pnpm build
 
-      - name: Commit translation memory + state
-        if: always()
+      - name: Commit updated state and docs
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add translation-memory/ state/ || true
+          git add docs/ state/
           if git diff --staged --quiet; then
-            echo "No memory/state changes to commit."
+            echo "No doc/state changes to commit."
           else
-            git commit -m "chore(sync): update translation memory and state"
+            git commit -m "chore(sync): update upstream docs [skip ci]"
             git push
           fi
 
@@ -98,27 +82,6 @@ jobs:
         uses: actions/upload-pages-artifact@v3
         with:
           path: docs/.vitepress/dist
-
-      - name: Check Cloudflare configuration
-        id: cf_check
-        env:
-          CF_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-        run: |
-          if [ -n "$CF_TOKEN" ]; then
-            echo "configured=true" >> $GITHUB_OUTPUT
-          else
-            echo "configured=false" >> $GITHUB_OUTPUT
-          fi
-
-      - name: Deploy to Cloudflare Pages
-        if: steps.cf_check.outputs.configured == 'true'
-        uses: cloudflare/pages-action@v1
-        with:
-          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          projectName: opendocs-cn
-          directory: docs/.vitepress/dist
-          gitHubToken: ${{ secrets.GITHUB_TOKEN }}
 
   deploy:
     needs: sync-and-build

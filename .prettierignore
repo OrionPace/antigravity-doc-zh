@@ -15,3 +15,7 @@ translation-memory
 implementation_plan.md
 README.md
 LICENSE
+
+docs/cli
+docs/codex
+**/*.md

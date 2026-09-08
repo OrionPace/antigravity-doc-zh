@@ -1,12 +1,12 @@
-# Headless 模式（无头模式）
+# Headless 模式
 
-以非交互方式运行 Antigravity CLI，用于编写 agent 任务脚本、集成至 CI 流水线以及捕获机器可读的输出。
+以非交互方式运行 Antigravity CLI，用于脚本化 agent 任务、集成 CI 流水线，并捕获机器可读的输出。
 
-Headless mode（无头模式，亦称 print 模式）向 agent 发送单次 prompt，流式传输或返回响应后随即退出。无论何时需要在程序中获取 agent 的输出而非在终端界面（TUI）中交互时，都可以使用此模式。
+Headless 模式（也称为 print 模式）向 agent 发送单个 prompt，流式传输或返回响应，然后退出。当你需要在程序中而非终端界面中获取 agent 的输出时，请使用此模式。
 
-## 运行单次 prompt
+## 运行单个 prompt
 
-通过 `-p`（或其别名 `--print` 和 `--prompt`）传入 prompt，执行一次后退出：
+使用 `-p`（或其别名 `--print` 和 `--prompt`）传入 prompt，即可运行一次并退出：
 
 ```
 agy -p "In one sentence, what is a git rebase?"
@@ -16,28 +16,28 @@ agy -p "In one sentence, what is a git rebase?"
 A git rebase rewrites the commit history by transplanting a sequence of commits onto a new base commit, imposing a strictly linear progression of changes that eliminates arbitrary merge artifacts.
 ```
 
-响应内容输出至 `stdout`。诊断信息（包括错误、身份验证提示、进度和权限声明）则输出至 `stderr`。这种分离机制保证了捕获到的响应内容足够纯净：
+响应输出到 `stdout`。诊断信息——错误、身份验证提示、进度和权限通知——输出到 `stderr`。这种分离方式可确保捕获的响应保持干净：
 
-```bash
-# 仅捕获模型响应；诊断信息仍将打印到终端。
+```
+# 仅捕获模型响应；诊断信息仍打印到终端。
 answer=$(agy -p "Name three popular version control systems, comma-separated.")
 ```
 
-> **注意：** Headless mode 使用您缓存的凭据。请先通过一次交互式 `agy` 会话完成身份验证。在无终端的非交互式环境（例如 CI）中，未认证的运行将直接以 `authentication required` 错误退出，而不会挂起等待。
+> **注意：** Headless 模式使用你缓存的凭据。请先通过交互式 `agy` 会话完成一次身份验证。在无终端的非交互环境中（例如 CI），未完成身份验证的运行会以 `authentication required` 错误退出，而不会挂起。
 
 ## 输出格式
 
-`--output-format` flag 用于控制 `stdout` 的数据形态。它支持三个取值：
+`--output-format` 标志控制 `stdout` 的形态。它接受三个值：
 
-| 格式 | `stdout` 结构形态 | 适用场景 |
+| 格式 | `stdout` 形态 | 适用场景 |
 | --- | --- | --- |
-| `text` | 纯响应文本（默认） | 人类可读输出、轻量脚本 |
-| `json` | 执行完成后打印的一个完整 JSON 对象 | 捕获结果及元数据 |
-| `stream-json` | 换行符分隔的 JSON（NDJSON）事件流 | 实时监控执行进度、工具以及 token 消耗 |
+| `text` | 响应文本（默认） | 人类可读的输出、快速脚本 |
+| `json` | 完成时打印一个 JSON 对象 | 捕获结果及元数据 |
+| `stream-json` | 换行分隔的 JSON（NDJSON）事件 | 监控进度、工具和 token 用量 |
 
-### Text
+### 文本
 
-默认格式。响应文本直接输出到 `stdout`，不做任何包装：
+默认格式。响应文本直接输出到 `stdout`，无任何包装：
 
 ```
 agy -p "In one sentence, what does the command git bisect do?"
@@ -49,13 +49,13 @@ Git bisect executes a binary search algorithm across a project's commit history 
 
 ### JSON
 
-设置 `--output-format json` 可在运行完成后获取单个 JSON 封装包。CLI 会将其输出在单行中；可通过管道传递给 `jq` 进行美化打印（pretty-print）：
+设置 `--output-format json` 可在运行完成后获取单个 JSON 信封。CLI 将其输出为一行；可通过管道传递给 `jq` 进行美化打印：
 
 ```
 agy -p "In one sentence, what is a git rebase?" --output-format json | jq
 ```
 
-```json
+```
 {
   "conversation_id": "055a398f-db14-4c5f-abbb-1bf03f8120a7",
   "status": "SUCCESS",
@@ -72,31 +72,31 @@ agy -p "In one sentence, what is a git rebase?" --output-format json | jq
 }
 ```
 
-该封装包包含以下字段：
+该信封包含以下字段：
 
-| 字段 | 类型 | 说明 |
+| 字段 | 类型 | 描述 |
 | --- | --- | --- |
-| `conversation_id` | string | 对话 ID，用于后续恢复会话 |
-| `status` | string | 最终状态（参见 [状态值](#状态值)） |
+| `conversation_id` | string | 会话 ID，用于后续恢复 |
+| `status` | string | 终止状态（参见 [状态值](#状态值)） |
 | `response` | string | agent 的自由文本响应 |
-| `error` | string | 错误信息；仅在失败时出现 |
-| `duration_seconds` | number | 本次运行的挂钟耗时（秒） |
-| `num_turns` | number | 对话中的用户 turn（轮次）数量 |
-| `structured_output` | object | 解析后的 schema 对象输出；仅在使用 `--json-schema` 时出现 |
-| `json_schema` | object | 所强制执行的 schema；仅在使用 `--json-schema` 时出现 |
-| `usage` | object | Token 计数：`input_tokens`、`output_tokens`、`thinking_tokens`、`cache_read_tokens`、`total_tokens` |
+| `error` | string | 错误消息；仅在失败时出现 |
+| `duration_seconds` | number | 运行的墙钟时长 |
+| `num_turns` | number | 会话中的用户 turn 数量 |
+| `structured_output` | object | 解析后的 schema 输出；仅在指定 `--json-schema` 时出现 |
+| `json_schema` | object | 被强制执行的 schema；仅在指定 `--json-schema` 时出现 |
+| `usage` | object | token 计数：`input_tokens`、`output_tokens`、`thinking_tokens`、`cache_read_tokens`、`total_tokens` |
 
-#### 基于 Schema 的结构化输出
+#### 使用 schema 的结构化输出
 
-传入 `--json-schema` 可将回答约束至指定的 schema。解析后的对象将出现在 `structured_output` 中，而 `response` 则保留序列化为字符串的相同负载：
+传入 `--json-schema` 可将答案约束到某个 schema。解析后的对象出现在 `structured_output` 中，而 `response` 则包含序列化为字符串的相同负载：
 
-```bash
+```
 agy -p "Parse the semantic version string v2.14.3 into an object with integer fields major, minor, and patch." \
   --output-format json \
   --json-schema '{"type":"object","properties":{"major":{"type":"integer"},"minor":{"type":"integer"},"patch":{"type":"integer"}},"required":["major","minor","patch"]}' | jq
 ```
 
-```json
+```
 {
   "conversation_id": "4e502687-290c-4030-b908-5ed6c68fa5dc",
   "status": "SUCCESS",
@@ -117,26 +117,26 @@ agy -p "Parse the semantic version string v2.14.3 into an object with integer fi
 }
 ```
 
-该 flag 接受 schema 字符串、`.json` schema 文件路径或基本类型名称（`string`、`number`、`integer`、`boolean`）。直接从 `structured_output` 中读取解析后的值：
+该标志接受 schema 字符串、`.json` schema 文件的路径，或原始类型名称（`string`、`number`、`integer`、`boolean`）。从 `structured_output` 中读取解析后的值：
 
-```bash
+```
 agy -p "Parse the semantic version string v2.14.3 into an object with integer fields major, minor, and patch." \
   --output-format json \
   --json-schema '{"type":"object","properties":{"major":{"type":"integer"},"minor":{"type":"integer"},"patch":{"type":"integer"}},"required":["major","minor","patch"]}' \
   | jq '.structured_output'
 ```
 
-### Streaming JSON
+### 流式 JSON
 
-设置 `--output-format stream-json` 可随着运行的推进，逐行输出一个 JSON 对象（NDJSON）。使用此格式可实时观察 tool call（工具调用）与 token 使用量。
+设置 `--output-format stream-json` 可在运行过程中逐行输出 JSON 对象（NDJSON）。使用此格式可实时观察 tool call 和 token 用量。
 
 ```
 agy -p "In one sentence, what is a git rebase?" --output-format stream-json
 ```
 
-事件流以单个 `init` 事件开始，接着是任意数量的 `step_update` 事件，并以恰好一个 `result` 事件结束（下方已缩写 `cwd` 和 `tools` 数组）：
+流以一个 `init` 事件开始，随后是任意数量的 `step_update` 事件，最后恰好以一个 `result` 事件结束（下文中的 `cwd` 和 `tools` 数组已做省略）：
 
-```json
+```
 {"event":"init","conversation_id":"c3b66b04-872b-4fbe-a3a4-058a026ef20a","init":{"cwd":"/home/user/project","tools":["ask_permission","run_command","write_to_file","..."],"permission_mode":"request-review"}}
 {"event":"step_update","step_update":{"conversation_id":"c3b66b04-872b-4fbe-a3a4-058a026ef20a","step_index":0,"state":"DONE","step_type":"user_input"}}
 {"event":"step_update","step_update":{"conversation_id":"c3b66b04-872b-4fbe-a3a4-058a026ef20a","step_index":3,"state":"DONE","step_type":"agent_response","text_delta":"Git rebase destructively rewrites a branch's commit history by systematically detaching its unique commits and sequentially reapplying them onto a new base commit.\n","duration_seconds":6.28,"usage":{"input_tokens":10302,"output_tokens":582,"thinking_tokens":551,"cache_read_tokens":8113,"total_tokens":10884}}}
@@ -144,63 +144,63 @@ agy -p "In one sentence, what is a git rebase?" --output-format stream-json
 {"event":"result","result":{"conversation_id":"c3b66b04-872b-4fbe-a3a4-058a026ef20a","status":"SUCCESS","response":"Git rebase destructively rewrites a branch's commit history by systematically detaching its unique commits and sequentially reapplying them onto a new base commit.\n","duration_seconds":6.88,"num_turns":1,"usage":{"input_tokens":10418,"output_tokens":589,"thinking_tokens":551,"cache_read_tokens":8113,"total_tokens":11007}}}
 ```
 
-当响应分块流式传输时，`agent_response` 步骤会在最终变为 `DONE` 之前，发出一个或多个携带部分 `text_delta` 片段的 `ACTIVE` 事件；而对于本例这样简短的响应，则会在单个 `DONE` 事件中一次性送达。
+当响应分块流式传输时，`agent_response` step 会在最终 `DONE` 之前发出一个或多个携带部分 `text_delta` 片段的 `ACTIVE` 事件；像本例这样的短响应会在单个 `DONE` 中到达。
 
-每一行都是一个事件对象，其 `event` 字段标明了事件类型：
+每一行都是一个事件对象，其 `event` 字段标识其类型：
 
-| `event` | 负载键（Payload key） | 发出时机 |
+| `event` | 负载键 | 发出时机 |
 | --- | --- | --- |
-| `init` | `init` | 仅一次，在流启动时 |
-| `step_update` | `step_update` | 每次步骤状态转换或收到 text delta 时 |
-| `result` | `result` | 仅一次，在执行结束时（结构与 `json` 格式相同） |
+| `init` | `init` | 流开始时，一次 |
+| `step_update` | `step_update` | 每个 step 转换或文本增量时 |
+| `result` | `result` | 结束时，一次（与 `json` 形态相同） |
 
-`init` 负载记录了运行配置。`model` 和 `agent` 仅在通过 `--model` 或 `--agent` 显式设置时才会出现；`permission_mode` 默认为 `request-review`（在使用 `--dangerously-skip-permissions` 时为 `always-proceed`）：
+`init` 负载记录运行配置。`model` 和 `agent` 仅在通过 `--model` 或 `--agent` 设置时出现；`permission_mode` 默认为 `request-review`（在 `--dangerously-skip-permissions` 下为 `always-proceed`）：
 
-| 字段 | 类型 | 说明 |
+| 字段 | 类型 | 描述 |
 | --- | --- | --- |
-| `cwd` | string | 当前工作目录 |
-| `tools` | string[] | 所有可用工具的名称列表 |
+| `cwd` | string | 工作目录 |
+| `tools` | string\[\] | 所有可用工具的名称 |
 | `permission_mode` | string | 生效的权限模式 |
-| `model` | string | 使用的模型（覆盖时） |
-| `agent` | string | 激活的 agent（覆盖时） |
-| `json_schema` | object | 强制执行的 schema（通过 `--json-schema` 设置时） |
+| `model` | string | 正在使用的模型（当被覆盖时） |
+| `agent` | string | 当前 agent（当被覆盖时） |
+| `json_schema` | object | 被强制执行的 schema（当通过 `--json-schema` 设置时） |
 
-每个 `step_update` 负载描述了一个具体步骤。常见的 `step_type` 取值包括 `user_input`、`agent_response`、`tool` 和 `checkpoint`；当步骤正在运行时，`state` 为 `ACTIVE`，步骤完成时为 `DONE`：
+每个 `step_update` 负载描述一个 step。已观察到的 `step_type` 值包括 `user_input`、`agent_response`、`tool` 和 `checkpoint`；`state` 在 step 运行时为 `ACTIVE`，完成时为 `DONE`：
 
-| 字段 | 类型 | 说明 |
+| 字段 | 类型 | 描述 |
 | --- | --- | --- |
-| `conversation_id` | string | 对话 ID |
-| `step_index` | number | 步骤的零基索引（从 0 开始） |
+| `conversation_id` | string | 会话 ID |
+| `step_index` | number | step 的从零开始的索引 |
 | `state` | string | `ACTIVE` 或 `DONE` |
-| `step_type` | string | 步骤类别，例如 `agent_response` 或 `tool` |
-| `tool_name` | string | 规范工具名（仅在 tool 步骤中出现） |
-| `text_delta` | string | 增量响应文本片段 |
-| `duration_seconds` | number | 步骤耗时（已知时） |
-| `usage` | object | 单步 token 消耗量（已知时） |
-| `tool_info` | object | 工具调用详情（参见下文） |
-| `subagent_info` | object | Subagent 调用详情 |
+| `step_type` | string | step 类别，例如 `agent_response` 或 `tool` |
+| `tool_name` | string | 工具步骤上的规范工具名称 |
+| `text_delta` | string | 增量响应文本 |
+| `duration_seconds` | number | step 时长（已知时） |
+| `usage` | object | 每个 step 的 token 用量（已知时） |
+| `tool_info` | object | tool 调用详情（见下文） |
+| `subagent_info` | object | subagent 调用详情 |
 
-#### 流中的 Tool Call
+#### 流中的 tool call
 
-在 tool 步骤中，`tool_info` 携带了调用参数及其执行结果。以下是一个执行了 `echo hello_headless_demo` 的真实 tool 步骤输出：
+在工具步骤上，`tool_info` 携带调用及其结果。这是来自执行了 `echo hello_headless_demo` 的运行的真实工具步骤：
 
-```json
+```
 {"event":"step_update","step_update":{"conversation_id":"edb1c8c1-50ba-4f3f-87eb-412d0e9d47c3","step_index":4,"state":"DONE","step_type":"tool","tool_name":"run_command","duration_seconds":0.07,"tool_info":{"name":"run_command","parameters":{"CommandLine":"echo hello_headless_demo"},"output":"hello_headless_demo\r\n"}}}
 ```
 
-`tool_info` 包含 `name`、`parameters`、`output`，以及在工具执行失败时包含带有 `type` 和 `message` 的 `error` 对象。生成 subagent 的步骤则会携带 `subagent_info`，并在 `subagents` 列表中列出每个 subagent（包含 `type_name`、`role`、`conversation_id`、`log_uri` 和 `workspace_uris`）。
+`tool_info` 包含 `name`、`parameters`、`output`，以及——当工具失败时——一个包含 `type` 和 `message` 的 `error` 对象。生成 subagent 的步骤则携带 `subagent_info`，在 `subagents` 下列出每个 subagent（包含 `type_name`、`role`、`conversation_id`、`log_uri` 和 `workspace_uris`）。
 
 #### 流中的结构化输出
 
-搭配 `--json-schema` 时，该 schema 将应用于流末尾的终端 `result` 事件，该事件携带与 `json` 格式封装包相同的 `structured_output` 和 `json_schema` 字段。
+使用 `--json-schema` 时，schema 适用于最终的 `result` 事件，该事件携带与 `json` 信封相同的 `structured_output` 和 `json_schema` 字段。
 
 ## 使用 jq 解析输出
 
-`stdout` 是机器可读的，因此 `jq` 可以精准提取您所需的信息。
+`stdout` 是机器可读的，因此 `jq` 可以精确提取你所需的内容。
 
-从 JSON 运行中提取响应文本：
+从 JSON 运行中获取响应文本：
 
-```bash
+```
 agy -p "Name three popular version control systems, comma-separated." --output-format json | jq -r '.response'
 ```
 
@@ -208,81 +208,84 @@ agy -p "Name three popular version control systems, comma-separated." --output-f
 Git, Subversion, Mercurial.
 ```
 
-实时拼接流式文本：
+按到达顺序拼接流式文本：
 
-```bash
+```
 agy -p "Explain what a merge conflict is in two sentences." --output-format stream-json \
   | jq -j 'select(.event=="step_update") | .step_update.text_delta // empty'
 ```
 
-从终端 `result` 事件中读取 token 使用量：
+从最终的 `result` 事件中读取 token 用量：
 
-```bash
+```
 agy -p "In one sentence, what is a git rebase?" --output-format stream-json \
   | jq 'select(.event=="result") | .result.usage'
 ```
 
-> **提示：** 拼接 `text_delta` 片段时请使用 `jq -j`（连接输出），这样 `jq` 就不会在片段之间自动插入换行符。
+> **提示：** 拼接 `text_delta` 片段时使用 `jq -j`（连接输出），这样 `jq` 不会在片段之间插入换行符。
 
-## 继续对话
+## 继续会话
 
-Headless 运行默认是无状态的。使用 `--continue`（`-c`）可以恢复最近一次对话的上下文，或使用 `--conversation` 传入先前某次运行的 `conversation_id`：
+Headless 运行默认是无状态的。使用 `--continue`（`-c`）恢复最近的会话，或使用 `--conversation` 并传入先前运行中的 `conversation_id` 来恢复特定会话：
 
-```bash
-# 继续最近一次对话。
+```
+# 继续最近的会话。
 agy -p "Now explain your previous answer in more detail" --continue
 
-# 通过 ID 恢复特定对话。
+# 按 ID 恢复特定会话。
 agy -p "Summarize what we discussed" --conversation 055a398f-db14-4c5f-abbb-1bf03f8120a7
 ```
 
-上述每条命令都会启动一个全新的进程。若要在单个进程内运行多个 turn（轮次），请参阅 [从 stdin 流式传入 prompt](#从-stdin-流式传入-prompt)。
+上述每种方式都会启动一个新进程。要在单个进程内运行多个 turn，请参阅 [从 stdin 流式传输 prompts](#从-stdin-流式传输-prompts)。
 
-## 从 stdin 流式传入 prompt
+## 从 stdin 流式传输 prompts
 
-使用 `--input-format stream-json` 可以保持单个持续运行的对话进程，通过标准输入（stdin）逐个向其喂入 prompt。每个 prompt 都会执行一个完整的 turn 并发出其独立的 `result` 事件。
+使用 `--input-format stream-json` 可维持单个、连续的会话进程，通过标准输入（stdin）逐个向其提供 prompts。每个 prompt 执行一个完整的 turn 并发出自己的 `result` 事件。
 
-这种方式非常适合需要根据上一个回答动态决定下一个 prompt 的应用程序。由于该进程仅启动一次，后续的 turn 能够跳过冷启动开销，直接复用已预热的对话环境。这使得它比反复执行带有 `--continue` 的独立命令要快得多。
+这种方法非常适合需要根据前一个答案动态确定下一个 prompt 的应用程序。由于进程只启动一次，后续 turn 可跳过启动开销并复用已预热（warm-up）的会话。这比使用 `--continue` 重复运行命令要快得多。
 
-> **注意：** `--input-format stream-json` 必须搭配 `--output-format stream-json` 使用。在流式会话中，CLI 为每个 turn 恰好发出一个 `result` 事件。
+> **注意：** `--input-format stream-json` 要求配合 `--output-format stream-json`。在流式会话中，CLI 每个 turn 恰好发出一个 `result` 事件。
 
 ### 发送 prompt
 
-以每行一个 JSON 对象的形式写入 `stdin`。`event` 键指定了消息类型（与输出流格式相匹配）。Prompt 表示为带有 `message` 的 `user` 事件：
+向 `stdin` 逐行写入 JSON 对象。`event` 键指定消息类型（与输出流格式一致）。prompt 以包含 `message` 的 `user` 事件表示：
 
-```json
+```
 { "event": "user", "message": { "content": "Reply with exactly the word: apple. Nothing else." } }
 ```
 
-您可以将多个 prompt 管道传输到单次会话中：
+你可以将多个 prompts 通过管道传入单个会话：
 
-```bash
+```
 printf '%s\n' \
   '{"event":"user","message":{"content":"Reply with exactly the word: apple. Nothing else."}}' \
   '{"event":"user","message":{"content":"What word did I ask you to reply with in my previous message? Answer with just that word."}}' \
   | agy --input-format stream-json --output-format stream-json
 ```
 
-`content` 字段既可以接受标准字符串，也可以接受文本块列表。以下两种格式等效：
+`content` 字段接受标准字符串或文本块列表。以下两种格式等价：
 
-```json
+```
 { "event": "user", "message": { "content": "Reply with exactly: banana" } }
 { "event": "user", "message": { "content": [{ "type": "text", "text": "Reply with exactly: banana" }] } }
 ```
 
-`text` 是唯一支持的块类型。提交任何其他块类型都会导致会话以错误消息终止，而不是静默丢弃该块。这确保了 agent 绝不会回答您未明确发送的 prompt。
+`text` 是唯一支持的块类型。提交任何其他块类型都会以错误消息结束会话，而不是静默丢弃该块。这确保了 agent 永远不会回答你未明确发送的 prompt。
 
 ### 读取结果
 
-输出流的运作流程如下：
+输出流的工作方式如下：
 
-1. 以单个 `init` 事件开启。
-2. 为当前活动的 turn 发出一系列 `step_update` 事件。
-3. 以最终的 `result` 事件结束该 turn。
+1.  以单个 `init` 事件开始。
+    
+2.  为当前 turn 发出一系列 `step_update` 事件。
+    
+3.  以最终的 `result` 事件结束该 turn。
+    
 
-下例展示了上述双 prompt bash 命令的输出（其中 `init` 负载已缩写）：
+以下示例展示了上述两个 prompt 的 bash 命令的输出（`init` 负载已做省略）：
 
-```json
+```
 {"event":"init","conversation_id":"9ec58bfd-4d67-4f5e-83a5-9d907e9c6b1f","init":{"cwd":"/home/user/project","tools":["ask_permission","run_command","write_to_file","..."],"permission_mode":"request-review"}}
 {"event":"step_update","step_update":{"conversation_id":"9ec58bfd-4d67-4f5e-83a5-9d907e9c6b1f","step_index":0,"state":"DONE","step_type":"user_input"}}
 {"event":"step_update","step_update":{"conversation_id":"9ec58bfd-4d67-4f5e-83a5-9d907e9c6b1f","step_index":2,"state":"ACTIVE","step_type":"agent_response","text_delta":"apple"}}
@@ -293,20 +296,20 @@ printf '%s\n' \
 {"event":"result","result":{"conversation_id":"9ec58bfd-4d67-4f5e-83a5-9d907e9c6b1f","status":"SUCCESS","response":"apple\n","duration_seconds":2.548755756,"num_turns":2,"usage":{"input_tokens":30662,"output_tokens":8,"thinking_tokens":0,"cache_read_tokens":30214,"total_tokens":30670}}}
 ```
 
-第二个 turn 结合第一个 turn 的上下文给出了回答 `apple`。请注意，单个 `conversation_id` 追踪整个会话，而 `init` 仅发送一次。
+第二个 turn 从第一个 turn 的上下文中回答了 `apple`。请注意，单个 `conversation_id` 跟踪整个会话，且 `init` 只发送一次。
 
-在解析 result 对象时，请注意：响应文本仅适用于当前 turn，而元数据计数器追踪的是整个会话的累积值：
+在解析 result 对象时，请记住响应文本仅适用于当前 turn，而元数据计数器则跟踪累计的会话：
 
-| 字段 | 作用域 |
+| 字段 | 范围 |
 | --- | --- |
-| `response` | 发出该响应的当次 turn |
-| `num_turns` | 整个会话累积 |
-| `usage` | 整个会话累积 |
-| `duration_seconds` | 整个会话累积 |
+| `response` | 发出它的那个 turn |
+| `num_turns` | 会话累计 |
+| `usage` | 会话累计 |
+| `duration_seconds` | 会话累计 |
 
-若要进行筛选并仅查看最终响应，可以通过管道将输出传入 `jq`：
+要过滤并仅查看最终响应，你可以将输出通过管道传递给 `jq`：
 
-```bash
+```
 printf '%s\n' \
   '{"event":"user","message":{"content":"Reply with exactly: one"}}' \
   '{"event":"user","message":{"content":"Reply with exactly: two"}}' \
@@ -320,15 +323,15 @@ printf '%s\n' \
 2: two
 ```
 
-### 通过程序驱动会话
+### 以编程方式驱动会话
 
-除了预先传入所有 prompt 外，您还可以在脚本中保持 `stdin` 管道处于打开状态。这样您的应用程序就可以在提交下一个 prompt 之前，先评估模型的回答。
+你可以不在开始时传入所有 prompts，而是在脚本中保持 `stdin` 管道打开。这样你的应用程序可以在提交下一个 prompt 之前评估模型的答案。
 
-> **提示：** 您可以逐行读取 `stdout` 并根据 `event` 字段派发逻辑。请务必在收到当前 prompt 的 `result` 事件后，再写入下一个 prompt。
+> **提示：** 你可以逐行读取 `stdout`，并根据 `event` 字段分发逻辑。在写入下一个 prompt 之前，请等待收到当前 prompt 的 `result` 事件。
 
 例如：
 
-```python
+```
 import json
 import subprocess
 
@@ -361,50 +364,50 @@ proc.wait()
 
 ### 结束会话
 
-要正常优雅地关闭会话，只需关闭 `stdin` 即可。进程将在输入管道关闭且当前 turn 执行完毕后退出。如果应用程序写入了最后一个 prompt 并立即关闭管道，在进程终止前它仍会收到最后的 `result`。
+要优雅地结束会话，只需关闭 `stdin`。进程会在输入管道关闭且当前 turn 完成后退出。如果应用程序写入最后一个 prompt 后立即关闭管道，它仍会在进程终止前收到最终的 `result`。
 
-正常结束的会话退出码为 `0`，这与标准 headless mode 的行为一致。
+干净的会话以 `0` 退出，这与标准 headless 模式行为一致。
 
-### 不支持的消息类型
+### 不支持的消息
 
-为防止出现不可预知的行为，CLI 会对输入进行校验。如果遇到格式错误或不受支持的消息，CLI 将按照下表进行响应：
+为防止不可预测的行为，CLI 会验证输入。如果遇到格式错误或不支持的消息，它会按下表所述进行响应：
 
 | 输入 | 结果 | 退出码 |
 | --- | --- | --- |
-| 无法识别的 `event` 名称 | 跳过：向 `stderr` 记录警告日志 | — |
-| `control_request` 或 `control_response` 事件 | `ERROR` 结果，会话终止 | `2` |
-| 由 CLI 直接处理的 Slash Command（例如 `/model`） | `ERROR` 结果，会话终止 | `2` |
-| 缺少 `event` 字段的消息 | `ERROR` 结果，会话终止 | `1` |
-| 无效的 JSON 行 | `ERROR` 结果，会话终止 | `1` |
-| `text` 以外的内容块类型 | `ERROR` 结果，会话终止 | `1` |
+| 无法识别的 `event` 名称 | 跳过：警告记录到 `stderr` | — |
+| `control_request` 或 `control_response` 事件 | `ERROR` 结果，会话结束 | `2` |
+| 由 CLI 处理的斜杠命令，如 `/model` | `ERROR` 结果，会话结束 | `2` |
+| 缺少 `event` 字段的消息 | `ERROR` 结果，会话结束 | `1` |
+| 无效的 JSON 行 | `ERROR` 结果，会话结束 | `1` |
+| `text` 以外的内容块类型 | `ERROR` 结果，会话结束 | `1` |
 
-无法识别的 `event` 名称会被安全跳过并发出警告。这确保了基于新版流式协议构建的应用程序在较旧的 CLI 版本上运行时不会发生崩溃：
+无法识别的 `event` 名称会被安全跳过并附带警告。这确保了针对更新版本流式协议构建的应用程序在旧版 CLI 上运行时不会崩溃：
 
 ```
 warning: ignoring unsupported stream input message event "future_thing"
 ```
 
-对于所有其他错误，会话将立即终止。先前完成的任何 turn 仍会保留其 `result` 事件，但格式错误的输入行会中止会话的后续执行。
+对于所有其他错误，会话会立即终止。之前已完成的任何 turn 都会保留其 `result` 事件，但格式错误的输入行会中止会话的其余部分。
 
-CLI 能直接响应的 slash command（例如 `/model` 和 `/usage`）会生成文本报告而非标准事件流。流式会话无法使用这些类型的 slash command。例如：
+CLI 可以直接响应的斜杠命令（如 `/model` 和 `/usage`）会产生文本报告，而非标准事件流。流式会话无法利用这些类型的斜杠命令。例如：
 
-```json
+```
 { "event": "result", "result": { "conversation_id": "4fae3a70-409d-42a4-86ea-9de206a49ff4", "status": "ERROR", "response": "", "error": "/model is answered by the CLI itself and is unavailable with --input-format stream-json; run it as its own --print /model invocation", "duration_seconds": 0, "num_turns": 0, "usage": { "input_tokens": 0, "output_tokens": 0, "thinking_tokens": 0, "cache_read_tokens": 0, "total_tokens": 0 } } }
 ```
 
 ### 常见错误
 
-| 常见错误 | 失败原因 | 解决方法 |
+| 错误 | 失败原因 | 修复方法 |
 | :-- | :-- | :-- |
-| **搭配使用 `--output-format json` 或 `text`** | 这些格式仅在进程退出时发出单个输出封装包，导致除最后一个 turn 外的所有 turn 内容丢失。 | 在此输入模式下务必始终使用 `--output-format stream-json`。 |
-| **通过 `-p` flag 传递 prompt** | 流式模式专门监听 `stdin` 上的 prompt。通过命令行 flag 传入的任何 prompt 都将被丢弃。 | 改为将 prompt 作为 `user` 消息写入 `stdin`。 |
-| **向事件流中发送 `/model` 或 `/usage`** | CLI 在事件流之外通过内部逻辑处理这些命令，从而打破了 JSON 流。 | 将 `agy -p /model` 作为完全独立的命令单独运行。 |
-| **将 `num_turns` 视为单轮计数** | 元数据计数器（如 turn 数、耗时和 token 消耗）追踪的是整个累积会话，而非仅当前 turn。 | 使用 `response` 字段获取当前 turn 的文本。 |
-| **等待进程退出后再读取 `stdout`** | 会话在 `stdin` 关闭前将无限期保持开启状态。如果您的脚本等待进程退出信号，它将会发生挂起。 | 随着事件到达逐行读取，并在处理完毕后手动关闭 `stdin`。 |
+| **与 `--output-format json` 或 `text` 搭配使用** | 这些格式仅在进程退出时发出单个输出信封，导致除最后一个 turn 外的所有 turn 都会丢失。 | 在此输入模式下始终使用 `--output-format stream-json`。 |
+| **使用 `-p` 标志传入 prompt** | 流式模式仅监听 `stdin` 上的 prompts。通过命令行标志传入的任何 prompt 都会被丢弃。 | 将 prompt 作为 `user` 消息发送到 `stdin`。 |
+| **向流中发送 `/model` 或 `/usage`** | CLI 在事件流之外内部处理这些命令，会破坏 JSON 流。 | 将 `agy -p /model` 作为完全独立的单独命令运行。 |
+| **将 `num_turns` 视为每个 turn 的计数** | 元数据计数器（如 turn 数、时长和用量）跟踪整个累计会话，而非仅当前 turn。 | 使用 `response` 字段获取当前 turn 的文本。 |
+| **在读取 `stdout` 之前等待进程退出** | 会话会无限期保持打开，直到 `stdin` 关闭。如果你的脚本等待退出信号，它将挂起。 | 按到达顺序逐行读取事件，并在完成后手动关闭 `stdin`。 |
 
-## 选择模型、思考深度或 agent
+## 选择模型、effort 或 agent
 
-列出可用的模型标识（slug），然后为本次运行指定模型：
+列出可用的模型 slug，然后为本次运行固定一个：
 
 ```
 agy models
@@ -422,54 +425,58 @@ claude-sonnet-4-6         Claude Sonnet 4.6 (Thinking)
 ...
 ```
 
-```bash
-# 通过 slug 指定模型。
+```
+# 按 slug 固定模型。
 agy -p "Reverse the string antigravity." --model gemini-3.5-flash-medium
 
-# 设置推理思考深度（effort：low、medium 或 high）。
+# 设置推理 effort（low、medium 或 high）。
 agy -p "Outline a plan to add caching to this service." --effort high
 
-# 选择 agent（可通过 `agy agents` 列出）。
+# 选择 agent（使用 `agy agents` 列出）。
 agy -p "Review this function for edge cases." --agent <agent-name>
 ```
 
-与交互式 UI 不同，当 `--model` 指定了未知模型时，headless 模式不会静默回退。它会以非零退出码及 `ERROR` 状态退出，从而使指定了模型的流水线显式报错暴露问题，而不是以错误模型继续运行。
+与交互式界面不同，headless 模式在 `--model` 指定未知模型时不会静默回退。它会以非零退出码和 `ERROR` 状态退出，从而使固定了模型的流水线响亮地失败，而不是运行错误的模型。
 
 ## Headless 模式下的权限
 
-Headless 模式下不存在交互式提示，因此通常需要人工确认的工具由策略（policy）来处理。
+Headless 模式下没有交互式提示，因此通常会请求确认的工具由策略处理。
 
-默认情况下，CLI 遵循您设置中的权限模式。当某个工具需要审批但无法获取时，会被软拒绝（soft-denied）：运行继续进行，退出码为 `0`，并在 `stderr` 打印一条通知，指出该工具名称以及如何允许它。在活动 workspace 内读写文件是自动允许的；而 shell 命令等操作默认设置为 **Ask**，在 headless 模式下除非您显式授予权限，否则会被软拒绝。
+默认情况下，CLI 遵循你设置中的权限模式。需要其无法获得的批准的工具会被软拒绝：运行继续，以 `0` 退出，并向 `stderr` 打印一条通知，说明工具名称及如何允许它。在你的活动 workspace 内读写文件是自动允许的；shell 命令等操作默认为 **Ask**，在 headless 模式下会被软拒绝，除非你授予它们权限。
 
-如需提前授权某个工具，可在 `~/.gemini/antigravity-cli/settings.json` 的 `permissions.allow` 下添加 `action(target)` rule（规则）：
+通过在 `~/.gemini/antigravity-cli/settings.json` 的 `permissions.allow` 下添加 `action(target)` 规则来提前授予工具权限：
 
-```json
+```
 {
   "permissions": {
-    "allow": ["command(git)", "command(npm run (build|lint|test))", "write_file(src/)"]
+    "allow": [
+      "command(git)",
+      "command(regex:npm run (build|lint|test))",
+      "write_file(src/)"
+    ]
   }
 }
 ```
 
-若要在单次运行中自动批准所有工具，请传入 `--dangerously-skip-permissions`：
+要为一次运行自动批准所有工具，请传入 `--dangerously-skip-permissions`：
 
-```bash
+```
 agy -p "Run the test suite and report failures" --dangerously-skip-permissions
 ```
 
-> **警告：** `--dangerously-skip-permissions` 会批准所有的 tool call，包括文件写入和命令执行。除非您完全信任当前的 prompt 和运行环境，否则建议优先使用限定作用域的 `permissions.allow` rule。完整 rule 语法请参阅 [权限](/docs/cli/permissions)。
+> **警告：** `--dangerously-skip-permissions` 会批准所有 tool call，包括文件写入和命令执行。除非你完全信任 prompt 和环境，否则请优先使用范围限定的 `permissions.allow` 规则。有关完整的规则语法，请参阅 [权限](/docs/cli/permissions)。
 
-## 处理退出码与错误
+## 处理退出码和错误
 
-运行成功时退出码为 `0`。未能生成响应的运行将返回非零退出码，并将原因写入 `stderr`。在 `json` 和 `stream-json` 模式下，失败原因还会反映在 `status` 和 `error` 字段中。
+成功的运行以 `0` 退出。未能产生响应的运行以非零退出，并将原因写入 `stderr`。在 `json` 和 `stream-json` 模式下，失败也会出现在 `status` 和 `error` 字段中。
 
-例如，指定一个不存在的模型将以退出码 `1` 退出并返回错误封装包：
+例如，固定一个未知模型会以 `1` 退出并返回错误信封：
 
-```bash
+```
 agy -p "hi" --model does-not-exist-model --output-format json; echo "exit=$?"
 ```
 
-```json
+```
 {"conversation_id":"","status":"ERROR","response":"","error":"invalid model selection (--model \"does-not-exist-model\" --effort \"\"): model does-not-exist-model is not recognized as a known model or custom model in settings\nAvailable models:\n  Gemini 3.6 Flash (High)\n  ...","duration_seconds":0,"num_turns":0,"usage":{"input_tokens":0,"output_tokens":0,"thinking_tokens":0,"cache_read_tokens":0,"total_tokens":0}}
 ```
 
@@ -477,48 +484,46 @@ agy -p "hi" --model does-not-exist-model --output-format json; echo "exit=$?"
 exit=1
 ```
 
-### 状态值
-
-`status` 字段汇报了运行的最终终态：
+`status` 字段报告运行的终止状态：
 
 | 状态 | 含义 |
 | --- | --- |
-| `SUCCESS` | 运行完成并生成了响应 |
-| `ERROR` | 运行因错误而结束 |
+| `SUCCESS` | 运行完成并产生了响应 |
+| `ERROR` | 运行以错误结束 |
 | `CANCELED` | 运行被取消 |
-| `INTERRUPTED` | 运行被中断（例如收到 `SIGINT`） |
-| `INVALID` | 运行进入了无效状态 |
+| `INTERRUPTED` | 运行被中断（例如 `SIGINT`） |
+| `INVALID` | 运行达到了无效状态 |
 | `WAITING` | 运行在等待输入时结束 |
-| `RUNNING` | 运行尚未达到终态 |
+| `RUNNING` | 运行未达到终止状态 |
 
-默认情况下，单次运行等待响应的最长时间为 5 分钟。可通过 `--print-timeout` 调整上限：
+默认情况下，运行最多等待五分钟以获取响应。使用 `--print-timeout` 调整上限：
 
-```bash
+```
 agy -p "Summarize the design tradeoffs of optimistic locking." --print-timeout 15m
 ```
 
-## Flag 参数参考
+## 标志参考
 
-| Flag | 默认值 | 说明 |
+| 标志 | 默认值 | 描述 |
 | --- | --- | --- |
-| `-p`, `--print`, `--prompt` | — | 以非交互方式运行单次 prompt 并打印响应 |
+| `-p`、`--print`、`--prompt` | — | 以非交互方式运行单个 prompt 并打印响应 |
 | `--output-format` | `text` | 输出格式：`text`、`json` 或 `stream-json` |
-| `--input-format` | `text` | 输入格式：`text` 或 `stream-json`；从 stdin 读取 prompt |
+| `--input-format` | `text` | 输入格式：`text` 或 `stream-json`；在 stdin 上读取 prompts |
 | `--json-schema` | — | 用于强制执行结构化输出的 schema 字符串或文件路径 |
 | `--model` | — | 本次运行的模型 slug（参见 `agy models`） |
-| `--effort` | — | 推理思考深度：`low`、`medium` 或 `high` |
+| `--effort` | — | 推理 effort：`low`、`medium` 或 `high` |
 | `--agent` | — | 本次运行的 agent（参见 `agy agents`） |
-| `--continue`, `-c` | `false` | 继续最近一次对话 |
-| `--conversation` | — | 通过 ID 恢复指定对话 |
+| `--continue`、`-c` | `false` | 继续最近的会话 |
+| `--conversation` | — | 按 ID 恢复会话 |
 | `--dangerously-skip-permissions` | `false` | 自动批准所有工具权限请求 |
-| `--print-timeout` | `5m` | 等待响应的最大超时时长 |
-| `--sandbox` | `false` | 启用终端 sandbox 隔离限制运行 |
+| `--print-timeout` | `5m` | 等待响应的最长时间 |
+| `--sandbox` | `false` | 启用终端 sandbox 限制运行 |
 
 ## 示例：在 CI 中运行 agent
 
-在发生错误时使构建任务失败并保存响应内容：
+出错时使任务失败并保存响应：
 
-```bash
+```
 #!/usr/bin/env bash
 set -euo pipefail
 
@@ -537,7 +542,7 @@ echo "$result" | jq -r '.response' > result.txt
 
 ## 后续步骤
 
-* [Prompt 与交互](/docs/cli/prompting)：为 agent 编写高效的 prompt。
-* [权限](/docs/cli/permissions)：配置 allow、deny 和 ask rule。
-* [后台任务与 Subagent](/docs/cli/subagents)：将工作委派给专业 agent。
-* [参考](/docs/cli/reference)：完整的命令与 flag 参数参考。
+*   [Prompting & Interaction](/docs/cli/prompting)：为 agent 编写有效的 prompts。
+*   [Permissions](/docs/cli/permissions)：配置 allow、deny 和 ask 规则。
+*   [Background Tasks & Subagents](/docs/cli/subagents)：将工作委派给专门的 agents。
+*   [Reference](/docs/cli/reference)：完整的命令和标志参考。

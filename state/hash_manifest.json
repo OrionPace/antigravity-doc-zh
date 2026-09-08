@@ -66,9 +66,9 @@
     "dest_file": "docs/cli/10-choose-an-execution-mode.md"
   },
   "/docs/cli/headless": {
-    "sha256": "822f81257dbcafd3c6a4de3660158f1d9f3509063956a99effd373b5ae06d50d",
+    "sha256": "b214fe10becc3a397efbef679a4861ff25ccff0da6ab22193d426c4248bd4dbc",
     "url": "https://antigravity.google/docs/cli/headless.md",
-    "updated_at": "2026-09-04T06:39:46Z",
+    "updated_at": "2026-09-08T22:25:38Z",
     "dest_file": "docs/cli/11-headless-mode.md"
   },
   "/docs/cli/subagents": {
@@ -84,9 +84,9 @@
     "dest_file": "docs/cli/13-sandbox.md"
   },
   "/docs/cli/permissions": {
-    "sha256": "3bb2557f2f7fb9cad044cead2ed6526d7c81a54be324a8e26b5bbe47c1c2ea4d",
+    "sha256": "d19115ad63938baeb44bcd040c88ba3a6b3c809c83e1dedc0fffd958a52049e4",
     "url": "https://antigravity.google/docs/cli/permissions.md",
-    "updated_at": "2026-09-04T06:39:47Z",
+    "updated_at": "2026-09-08T22:25:48Z",
     "dest_file": "docs/cli/14-permissions.md"
   },
   "/docs/cli/projects": {

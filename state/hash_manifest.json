@@ -114,9 +114,9 @@
     "dest_file": "docs/cli/18-ai-credits.md"
   },
   "/docs/cli/mcp": {
-    "sha256": "8990f848321627ef78f85720224b848b255880909e00ba1fa9f8a0c3fe507958",
+    "sha256": "b6c0215dd49cffdbb12bc8f0a247735e5d189e345e175cf6e1301a227a78b902",
     "url": "https://antigravity.google/docs/cli/mcp.md",
-    "updated_at": "2026-09-04T06:39:49Z",
+    "updated_at": "2026-09-11T22:19:09Z",
     "dest_file": "docs/cli/19-mcp.md"
   },
   "/docs/cli/plugins": {

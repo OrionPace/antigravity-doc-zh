@@ -30,9 +30,9 @@
     "dest_file": "docs/cli/04-using-agy-cli.md"
   },
   "/docs/cli/features": {
-    "sha256": "23b43b5929740e0ac66668daa89ae89934e765c11b7728752724a1c6c622d8cd",
+    "sha256": "65261cab661a57df80a9e549c872bed170b47bfad8387890cd8a2e8e97502f18",
     "url": "https://antigravity.google/docs/cli/features.md",
-    "updated_at": "2026-09-04T06:39:44Z",
+    "updated_at": "2026-09-18T22:21:50Z",
     "dest_file": "docs/cli/05-features.md"
   },
   "/docs/cli/gcli-migration": {
@@ -210,9 +210,9 @@
     "dest_file": "docs/cli/34-troubleshooting.md"
   },
   "/docs/cli/reference": {
-    "sha256": "01f560c0597c4f71a8dce6a49c3da54be15f42f802af0bd3bc5e262569aa7d1f",
+    "sha256": "9ed482cc88b08e4ca4b7eed0cfd0d349ce4237ddb9e5d09f68ecdb52b939aa30",
     "url": "https://antigravity.google/docs/cli/reference.md",
-    "updated_at": "2026-09-04T06:39:55Z",
+    "updated_at": "2026-09-18T22:22:00Z",
     "dest_file": "docs/cli/35-cli-reference.md"
   }
 }
